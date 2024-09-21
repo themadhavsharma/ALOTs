@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +22,16 @@ public class ALOTsEntryService {
     @Autowired
     private userService uService;
 
+    @Transactional // treats the whole function as a single operation and if any line produce an error, the entire function revert.
     public void saveEntry(ALOTsUser user, String username){
-        iAmUser iUser = uService.findByusername(username);
-        ALOTsUser saved = repo.save(user);
-        iUser.getAlotsUser().add(saved);
-        uService.saveEntry(iUser);
+        try{
+            iAmUser iUser = uService.findByusername(username);
+            ALOTsUser saved = repo.save(user);
+            iUser.getAlotsUser().add(saved);
+            uService.saveEntry(iUser);
+        }catch(Exception e){
+            throw new RuntimeException("An error occured while saving the entry.", e);
+        }
     }
 
     public void saveEntry(ALOTsUser user){

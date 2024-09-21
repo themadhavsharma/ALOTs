@@ -21,6 +21,7 @@ public class ALOTsUser {
     private String name;
     private String email;
     private String phoneNumber;
+    @NonNull
     private String password;
     private LocalDateTime date;
 
