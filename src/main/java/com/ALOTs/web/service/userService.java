@@ -27,8 +27,6 @@ public class userService {
         try {
             return repo.findAll();
         } catch (Exception e) {
-            // Add logging here for better error insight
-            System.out.println("Error fetching users: " + e.getMessage());
             return new ArrayList<>();
         }
     }

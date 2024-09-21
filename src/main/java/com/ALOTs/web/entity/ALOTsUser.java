@@ -11,18 +11,16 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
+@NoArgsConstructor
 @Document(collection = "ALOTsusers")
 public class ALOTsUser {
     @Id
     private ObjectId id;
-    @NonNull
     @Indexed(unique = true)
     private String username;
-    @NonNull
     private String name;
     private String email;
     private String phoneNumber;
-    @NonNull
     private String password;
     private LocalDateTime date;
 

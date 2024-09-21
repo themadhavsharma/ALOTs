@@ -1,7 +1,9 @@
 package com.ALOTs.web.controller;
 
 import com.ALOTs.web.entity.ALOTsUser;
+import com.ALOTs.web.entity.iAmUser;
 import com.ALOTs.web.service.ALOTsEntryService;
+import com.ALOTs.web.service.userService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,9 +19,13 @@ public class RegisterController {
     @Autowired
     private ALOTsEntryService service;
 
-    @GetMapping("all")
-    public ResponseEntity<?> All(){
-        List<ALOTsUser> all = service.getAll();
+    @Autowired
+    private userService uService;
+
+    @GetMapping("{username}")
+    public ResponseEntity<?> getAllEntriesOfUser(@PathVariable String username){
+        iAmUser byusername = uService.findByusername(username);
+        List<ALOTsUser> all = byusername.getAlotsUser();
         if(all != null && !all.isEmpty()){
             return new ResponseEntity<>(all, HttpStatus.OK);
         }
@@ -35,30 +41,33 @@ public class RegisterController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @PostMapping
-    public ResponseEntity<?> register(@RequestBody ALOTsUser user){
+    @PostMapping("{username}")
+    public ResponseEntity<?> register(@RequestBody ALOTsUser user, @PathVariable String username){
         try{
             user.setDate(LocalDateTime.now());
-            service.saveEntry(user);
+            service.saveEntry(user, username);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    @DeleteMapping("id/{myId}")
-    public ResponseEntity<?> deleteUser(@PathVariable ObjectId myId){
+    @DeleteMapping("id/{username}/{myId}")
+    public ResponseEntity<?> deleteUser(@PathVariable ObjectId myId, @PathVariable String username){
         try{
-            service.deleteUser(myId);
+            service.deleteUser(myId, username);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
     }
 
-    @PutMapping("id/{myId}")
-    public ResponseEntity<?> updateUser(@PathVariable ObjectId myId, @RequestBody ALOTsUser user){
+    @PutMapping("id/{username}/{myId}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable ObjectId myId,
+            @PathVariable String username,
+            @RequestBody ALOTsUser user){
         try{
             ALOTsUser prevEntry = service.findById(myId);
             if(prevEntry != null){
@@ -68,7 +77,7 @@ public class RegisterController {
                 prevEntry.setPhoneNumber(user.getPhoneNumber() != null && !user.getPhoneNumber().equals("")?user.getPhoneNumber(): prevEntry.getPhoneNumber());
             }
             service.saveEntry(prevEntry);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(prevEntry, HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

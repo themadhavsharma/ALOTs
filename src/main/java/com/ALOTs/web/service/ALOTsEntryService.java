@@ -1,6 +1,7 @@
 package com.ALOTs.web.service;
 
 import com.ALOTs.web.entity.ALOTsUser;
+import com.ALOTs.web.entity.iAmUser;
 import com.ALOTs.web.repository.ALOTsRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,20 @@ public class ALOTsEntryService {
     @Autowired
     private ALOTsRepository repo;
 
+    @Autowired
+    private userService uService;
+
+    public void saveEntry(ALOTsUser user, String username){
+        iAmUser iUser = uService.findByusername(username);
+        ALOTsUser saved = repo.save(user);
+        iUser.getAlotsUser().add(saved);
+        uService.saveEntry(iUser);
+    }
+
     public void saveEntry(ALOTsUser user){
+
         repo.save(user);
+
     }
 
     public List<ALOTsUser> getAll(){
@@ -38,7 +51,10 @@ public class ALOTsEntryService {
         return repo.findById(id).orElse(null);
     }
 
-    public void deleteUser(ObjectId id){
+    public void deleteUser(ObjectId id, String username){
+        iAmUser iUser = uService.findByusername(username);
+        iUser.getAlotsUser().removeIf(x -> x.getId().equals(id));
+        uService.saveEntry(iUser);
         repo.deleteById(id);
     }
 

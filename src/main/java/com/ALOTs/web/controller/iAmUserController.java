@@ -46,7 +46,7 @@ public class iAmUserController {
         }
     }
 
-    @PutMapping("/{username}")// we will update using the @RequestBody because there will be username which will help to find the user coz it is unique itself :)
+    @PutMapping("name/{username}")// we will update using the @RequestBody because there will be username which will help to find the user coz it is unique itself :)
     public ResponseEntity<?> updateUser(@RequestBody iAmUser theUser, @PathVariable String username){
        try{
            iAmUser user = service.findByusername(username);
@@ -57,7 +57,7 @@ public class iAmUserController {
            }
            return new ResponseEntity<>(user, HttpStatus.OK);
        } catch(Exception e){
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
        }
 
     }
